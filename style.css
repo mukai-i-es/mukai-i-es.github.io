@@ -65,6 +65,7 @@ body{
     font-size: 18px;
     font-weight: bold;
     color: #333;
+    margin-bottom: 12px;
 }
 
 #status p {
@@ -113,8 +114,9 @@ body{
 }
 
 .choice-selected {
-    background-color: #ffcc66;
+    background-color: #ffcc66 !important;
     transform: scale(1.05);
+    transition: 0.2s;
 }
 
 #decideBtn {
@@ -139,3 +141,25 @@ body{
     margin-top:20px;
     font-weight: bold;
 }
+
+#diff-bar {
+    position: absolute;
+    top: 25px;   
+    right: 10px;
+    display: flex;
+    gap: 60px;
+    justify-content: flex-end;
+    margin-top: 4px;
+    font-size: 14px;
+    height: 20px;
+    line-height: 22px;
+}
+
+#diff-bar span{
+    min-width: 40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.positive { color: #2ecc71; }
+.negative { color: #e74c3c; }

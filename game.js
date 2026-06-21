@@ -32,12 +32,33 @@ function showDiff(before, after) {
   const diffPOP = after.POP - before.POP;
   const diffMONEY = after.MONEY - before.MONEY;
 
-  document.getElementById("diff").innerHTML = `
-    <p>ENV: ${before.ENV} → ${after.ENV} (${diffENV >= 0 ? "+" : ""}${diffENV})</p>
-    <p>ECO: ${before.ECO} → ${after.ECO} (${diffECO >= 0 ? "+" : ""}${diffECO})</p>
-    <p>POP: ${before.POP} → ${after.POP} (${diffPOP >= 0 ? "+" : ""}${diffPOP})</p>
-    <p>MONEY: ${before.MONEY} → ${after.MONEY} (${diffMONEY >= 0 ? "+" : ""}${diffMONEY})</p>
-  `;
+  document.getElementById("env-diff").textContent =
+    diffENV === 0 ? "" : (diffENV > 0 ? "+" + diffENV : diffENV);
+  document.getElementById("eco-diff").textContent = 
+    diffECO === 0 ? "" : (diffECO > 0 ? "+" + diffECO : diffECO);
+  document.getElementById("pop-diff").textContent = 
+    diffPOP === 0 ? "" : (diffPOP > 0 ? "+" + diffPOP : diffPOP);
+  document.getElementById("money-diff").textContent = 
+    diffMONEY === 0 ? "" : (diffMONEY > 0 ? "+" + diffMONEY : diffMONEY);
+
+  document.getElementById("env-diff").className =
+    diffENV > 0 ? "positive" : diffENV < 0 ? "negative" : "";
+
+  document.getElementById("eco-diff").className =
+    diffECO > 0 ? "positive" : diffECO < 0 ? "negative" : "";
+
+  document.getElementById("pop-diff").className =
+    diffPOP > 0 ? "positive" : diffPOP < 0 ? "negative" : "";
+
+  document.getElementById("money-diff").className =
+    diffMONEY > 0 ? "positive" : diffMONEY < 0 ? "negative" : "";
+
+  setTimeout(()=> {
+    document.getElementById("env-diff").textContent = "";
+    document.getElementById("eco-diff").textContent = "";
+    document.getElementById("pop-diff").textContent = "";
+    document.getElementById("money-diff").textContent = "";
+  }, 2000);
 }
 
 
