@@ -7,6 +7,14 @@
 </head>
 <body>
 
+<div id="intro">
+  <h1>環境シミュレーションゲーム</h1>
+  <p>あなたはこの街に新しく就任した市長です。<br>
+    限られた予算（MONEY）の中で、環境（ENV）・経済（ECO）・市民生活（POP）のバランスを取りながら<br>
+    街を発展させてください。</p>
+  <button id="startBtn"> > start < </button>
+  </div>
+
 <div id="status">
   <p>ENV: <span id="env"></span></p>
   <p>ECO: <span id="eco"></span></p>
@@ -28,8 +36,11 @@
   </div>
 </div>
 
+<button id="decideBtn">決定</button>
+
 <div id="diff"></div>
 
+<script src="events.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
