@@ -1,0 +1,70 @@
+body{
+    background-color: #faf3e0;
+    font-family: "Yu Gothic", sans-serif;
+}
+
+#env {color : green}
+#eco {color :blue}
+#pop { color : orange}
+#money{ color : brown}
+
+#status {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    gap: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+#status p {
+  margin: 0;
+  font-weight: bold;
+}
+
+#paper{
+    width: 500px;
+    margin: 80px auto;
+    padding: 30px;
+    background: #fffdf5;
+    border: 2px solid #d4c9a1;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+#event-img{
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+#choices{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#choices button{
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#choices button:hover{
+    background-color: #45a049;
+    transform: scale(1.05);
+    transition: 0.5s;
+}
+
+#diff{
+    margin-top:20px;
+    font-weight: bold;
+}

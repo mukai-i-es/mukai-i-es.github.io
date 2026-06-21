@@ -3,26 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <title>環境シミュレーションゲーム</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>環境シミュレーションゲーム</h1>
-
-<div>
+<div id="status">
   <p>ENV: <span id="env"></span></p>
   <p>ECO: <span id="eco"></span></p>
   <p>POP: <span id="pop"></span></p>
   <p>MONEY: <span id="money"></span></p>
 </div>
 
-<h2 id="title"></h2>
+<div id="paper">
+  <h2 id="title"></h2>
 
-<button id="choice0"></button><br>
-<button id="choice1"></button><br>
-<button id="choice2"></button><br>
+  <img id="event-img" src="" alt="event image">
+
+  <p id="description"></p>
+
+  <div id="choices">
+    <button id="choice0"></button><br>
+    <button id="choice1"></button><br>
+    <button id="choice2"></button><br>
+  </div>
+</div>
 
 <div id="diff"></div>
 
-<script src="game.is"></script>
+<script src="game.js"></script>
 </body>
 </html>
