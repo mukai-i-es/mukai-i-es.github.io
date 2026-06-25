@@ -1,5 +1,8 @@
 body{
-    background-color: #faf3e0;
+    background-image: url("img/desk.png");
+    background-size: cover;   /* 画面に合わせて拡大縮小 */
+    background-position: center;
+    background-repeat: no-repeat;
     font-family: "Yu Gothic", sans-serif;
 }
 
@@ -64,7 +67,7 @@ body{
     gap: 20px;
     font-size: 18px;
     font-weight: bold;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 12px;
 }
 
