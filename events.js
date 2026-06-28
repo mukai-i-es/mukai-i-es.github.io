@@ -11,6 +11,27 @@ const events = [
     pop: [+3, -1, 0]
   },
   {
+    //アイテムイベント例
+    title: "エコ技術への投資",
+    img: "img/sample.png",
+    description: "最先端の環境研究所を誘致するチャンスです。長期的な環境指数への貢献が期待できます。",
+    choice_text: ["投資する", "今回は見送る"],
+    money: [-20, 0],
+    env: [+5, 0],
+    eco: [+5, 0],
+    pop: [+2, 0],
+    specialEffects: {
+      0: () => {
+        addActiveEffect({
+          name: "環境研究所",
+          duration: 3,
+          effect: () => { ENV += 3; }
+        });
+        alert("アイテム：『環境研究所』の効果が3ターン持続します");
+      }
+    }
+  },
+  {
     title: "森林伐採の申請",
     img: "img/sample.png",
     description: "民間企業から森林伐採の許可申請が届きました。資源活用と環境保全のどちらを優先すべきか判断が求められています。",

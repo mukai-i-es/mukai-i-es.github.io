@@ -15,6 +15,10 @@
   <button id="startBtn"> > start < </button>
   </div>
 
+<div id="day-overlay">
+  <div id="day-overlay-text">〇日目</div>
+  </div>
+
 <div id="status">
   <p>ENV: <span id="env"></span></p>
   <p>ECO: <span id="eco"></span></p>
@@ -28,6 +32,8 @@
   <span id="pop-diff"></span>
   <span id="money-diff"></span>
 </div>
+
+<h2 id="day-time">1 / 10 ターン</h2>
 
 <div id="paper">
   <h2 id="title"></h2>
@@ -43,11 +49,13 @@
   </div>
 </div>
 
-<button id="decideBtn">決定</button>
-
 <div id="diff"></div>
 
+<button id="decideBtn" style="display: none;"></button>
+
 <script src="events.js"></script>
+<script src="story.js"></script>
+<script src="ui.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

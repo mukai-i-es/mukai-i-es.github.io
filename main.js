@@ -1,66 +1,28 @@
+// main.js
+// --- 1. 基本ステータス管理 ---
 let ENV = 50;
 let ECO = 50;
 let POP = 50;
 let MONEY = 30;
 
+//1日の差分を一時的に溜めておく変数
+let dailyDiff = {env: 0, eco:0, pop:0, money: 0};
+
+const TURNS_PER_DAY = 3; //1日当たりのターン数（現時点では1日3ターン）
+const DAYS_LIMIT = 3; //日数（現時点：3日）
 let turn = 1;
-const MAX_TURN = 10;
+const MAX_TURN = (TURNS_PER_DAY * DAYS_LIMIT) + 1; //ターン数計算（3ターン×3日　＋　最終政策 = 10ターン）
 
+// 持続効果（バフ）を管理する配列
+let activeEffects = [];
 
-// 選択肢の効果を適用（Cのapply_choice）
-function applyChoice(e, c) {
-  MONEY += e.money[c];
-  ENV   += e.env[c];
-  ECO   += e.eco[c];
-  POP   += e.pop[c];
-}
+// events.js から最終政策を切り離し、通常イベントセットを作る
+const finalEvent = events.pop();
+let unusedEvents = [...events];
 
+let currentEvent = null;
 
-// ステータス表示
-function updateStatus() {
-  document.getElementById("env").textContent = ENV;
-  document.getElementById("eco").textContent = ECO;
-  document.getElementById("pop").textContent = POP;
-  document.getElementById("money").textContent = MONEY;
-}
-
-
-//差分表示
-function showDiff(before, after) {
-  const diffENV = after.ENV - before.ENV;
-  const diffECO = after.ECO - before.ECO;
-  const diffPOP = after.POP - before.POP;
-  const diffMONEY = after.MONEY - before.MONEY;
-
-  document.getElementById("env-diff").textContent =
-    diffENV === 0 ? "" : (diffENV > 0 ? "+" + diffENV : diffENV);
-  document.getElementById("eco-diff").textContent = 
-    diffECO === 0 ? "" : (diffECO > 0 ? "+" + diffECO : diffECO);
-  document.getElementById("pop-diff").textContent = 
-    diffPOP === 0 ? "" : (diffPOP > 0 ? "+" + diffPOP : diffPOP);
-  document.getElementById("money-diff").textContent = 
-    diffMONEY === 0 ? "" : (diffMONEY > 0 ? "+" + diffMONEY : diffMONEY);
-
-  document.getElementById("env-diff").className =
-    diffENV > 0 ? "positive" : diffENV < 0 ? "negative" : "";
-
-  document.getElementById("eco-diff").className =
-    diffECO > 0 ? "positive" : diffECO < 0 ? "negative" : "";
-
-  document.getElementById("pop-diff").className =
-    diffPOP > 0 ? "positive" : diffPOP < 0 ? "negative" : "";
-
-  document.getElementById("money-diff").className =
-    diffMONEY > 0 ? "positive" : diffMONEY < 0 ? "negative" : "";
-
-  setTimeout(()=> {
-    document.getElementById("env-diff").textContent = "";
-    document.getElementById("eco-diff").textContent = "";
-    document.getElementById("pop-diff").textContent = "";
-    document.getElementById("money-diff").textContent = "";
-  }, 2000);
-}
-
+// --- 2. 進行・計算ロジック ---
 
 // ゲームオーバー判定
 function isGameOver() {
@@ -70,116 +32,99 @@ function isGameOver() {
   return false;
 }
 
-
-// ランダムイベント選択（重複なし版）
-const finalEvent = events.pop();
-let unusedEvents = [...events];
-
+// 重複なしのランダムイベント選択
 function getRandomEventNoRepeat() {
+  if (unusedEvents.length === 0) return null;
   const index = Math.floor(Math.random() * unusedEvents.length);
   const e = unusedEvents[index];
-  unusedEvents.splice(index, 1);  // 使ったイベントを削除
+  unusedEvents.splice(index, 1);
   return e;
 }
 
-
-// 選択肢を押したときの処理
-let selectedChoice = null;
-
-function choose(c) {
-  selectedChoice = c;
-
-  document.getElementById("choice0").classList.remove("choice-selected");
-  document.getElementById("choice1").classList.remove("choice-selected");
-  document.getElementById("choice2").classList.remove("choice-selected");
-
-  document.getElementById("choice" + c).classList.add("choice-selected");
+// 持続効果を追加する関数（events.jsの特殊効果から呼ばれる）
+function addActiveEffect(effectObj) {
+  activeEffects.push(effectObj);
 }
 
-document.getElementById("decideBtn").onclick = () => {
-  if(selectedChoice === null) return;
+// 選択肢が選ばれたときの処理
+function choose(choiceIndex) {
+  const before = { ENV, ECO, POP, MONEY };
 
-  document.getElementById("diff").innerHTML = "";
+  // 効果の適用
+  MONEY += currentEvent.money[choiceIndex];
+  ENV   += currentEvent.env[choiceIndex];
+  ECO   += currentEvent.eco[choiceIndex];
+  POP   += currentEvent.pop[choiceIndex];
 
-  const e = currentEvent;
-  const before = {ENV, ECO, POP, MONEY};
+  // イベント固有の特殊効果（アイテム効果など）があれば実行
+  if (currentEvent.specialEffects && currentEvent.specialEffects[choiceIndex]) {
+    currentEvent.specialEffects[choiceIndex]();
+  }
 
-  applyChoice(e, selectedChoice);
+  const after = { ENV, ECO, POP, MONEY };
 
-  const after = {ENV, ECO, POP, MONEY};
+  if (isGameOver()) return;
 
-  if(isGameOver()) return ;
-
-  showDiff(before, after);
-
-  selectedChoice = null;
-  turn++;
-  nextTurn();
+  // UIに差分を表示し、次の入力を待つ
+  UI.showDiffAndWaitEnter(before, after, () => {
+    turn++;
+    nextTurn();
+  });
 }
-
-let currentEvent = null;
 
 // 1ターン進める処理
 function nextTurn() {
   if (turn > MAX_TURN) {
-    ending();
+    const endingData = Story.getEndingText(ENV, ECO, POP, MONEY);
+    UI.showEnding(endingData);
     return;
   }
 
+  // ターン開始時：ECOに応じた資金収入
   MONEY += Math.floor(ECO / 5);
 
-  let e;
-  if(turn === MAX_TURN){
-    e = finalEvent;
-  }else{
-    e = getRandomEventNoRepeat();
+  // ターン開始時：持続エフェクト（アイテム効果）の適用と残り寿命の消化
+  activeEffects.forEach(fx => fx.effect());
+  activeEffects = activeEffects.map(fx => {
+    fx.duration--;
+    return fx;
+  }).filter(fx => fx.duration > 0);
+
+  // ターンのイベントを決定（10ターン目なら最終政策を強制）
+  if (turn === MAX_TURN) {
+    currentEvent = finalEvent;
+  } else {
+    currentEvent = getRandomEventNoRepeat();
   }
 
-  currentEvent = e;
-  
-  document.getElementById("title").textContent = e.title;
-  document.getElementById("event-img").src = e.img;
-  document.getElementById("description").textContent = e.description;
-  document.getElementById("choice0").textContent = e.choice_text[0];
-  document.getElementById("choice1").textContent = e.choice_text[1];
-  document.getElementById("choice2").textContent = e.choice_text[2];
+  //story.jsにターン数と日数のテキスト生成を任す
+  const timeInfo = Story.getTurnHeaderText(turn, MAX_TURN, TURNS_PER_DAY);
+  UI.updateDayTime(`${timeInfo.day} ➔ ${timeInfo.turn}`);
 
-  document.getElementById("choice0").onclick = () => choose(0);
-  document.getElementById("choice1").onclick = () => choose(1);
-  document.getElementById("choice2").onclick = () => choose(2);
+  // 画面の表示を更新
+  UI.updateStatus(ENV, ECO, POP, MONEY);
+  UI.renderEvent(currentEvent, (choiceIndex) => {
+    choose(choiceIndex);
+  });
 
-  document.getElementById("choice0").disabled = false;
-  document.getElementById("choice1").disabled = false;
-  document.getElementById("choice2").disabled = false;
-
-  document.getElementById("choice0").classList.remove("choice-selected");
-  document.getElementById("choice1").classList.remove("choice-selected");
-  document.getElementById("choice2").classList.remove("choice-selected");
-
-  updateStatus();
+  const overlayText = Story.getDayOverlayText(turn, MAX_TURN, TURNS_PER_DAY);
+  if(overlayText) {
+    UI.showDayOverlay(overlayText);
+  }
 }
 
+// --- 3. ゲーム開始のトリガー ---
+window.onload = () => {
+  // 初期状態では決定ボタンを隠す
+  const decideBtn = document.getElementById("decideBtn");
+  if (decideBtn) decideBtn.style.display = "none";
 
-// エンディング
-function ending() {
-  let result = "";
-
-  if (ENV > 60 && ECO > 60 && POP > 60)
-    result = "グリーンシティエンド";
-  else if (ECO > 70 && ENV < 40)
-    result = "経済優先エンド";
-  else if (ENV < 30)
-    result = "環境悪化エンド";
-  else
-    result = "普通の町エンド";
-
-  alert("最終結果: " + result);
-}
-
-// ===============================
-// ゲーム開始
-// ===============================
-document.getElementById("startBtn").onclick = () => {
-  document.getElementById("intro").style.display = "none";
-  nextTurn();
-}
+  // スタートボタンが押されたらイントロを消してゲーム開始
+  const startBtn = document.getElementById("startBtn");
+  if (startBtn) {
+    startBtn.onclick = () => {
+      document.getElementById("intro").style.display = "none";
+      nextTurn();
+    };
+  }
+};
